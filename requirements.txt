@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+streamlit
+pytest
+requests
+beautifulsoup4
+pillow

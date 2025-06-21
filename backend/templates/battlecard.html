@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Battlecard: {{ title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #2a4d69; }
+        p { line-height: 1.6; }
+        ul { list-style-type: square; }
+    </style>
+</head>
+<body>
+    <h1>Battlecard: {{ title }}</h1>
+    <p><strong>Summary:</strong> {{ extract }}</p>
+    <p><strong>Source:</strong> <a href="{{ url }}" target="_blank">{{ url }}</a></p>
+    <h3>Key Points:</h3>
+    <ul>
+        {% for kw in keywords %}
+        <li>{{ kw }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

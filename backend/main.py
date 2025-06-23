@@ -34,13 +34,24 @@ def read_root():
 def search(request: Request, query: str):
     result = search_wikipedia(query)
     keywords = extract_keywords(result.get("Extract", ""))
+    # For now, use placeholder insights
+    strengths = "Strong brand in AI and large language models."
+    weaknesses = "Limited diversification outside AI."
+    differentiators = "Cutting-edge generative AI and big community adoption."
+    action = "Highlight our broader product suite and security features."
+
     return templates.TemplateResponse("battlecard.html", {
         "request": request,
         "title": result.get("Title", ""),
         "extract": result.get("Extract", ""),
         "url": result.get("ContentURL", ""),
-        "keywords": keywords
+        "keywords": keywords,
+        "strengths": strengths,
+        "weaknesses": weaknesses,
+        "differentiators": differentiators,
+        "action": action
     })
+
 
 @app.get("/download")
 def download(query: str):

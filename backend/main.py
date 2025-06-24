@@ -67,7 +67,13 @@ def download(query: str):
         keywords=keywords
     )
 
-    pdf = pdfkit.from_string(html_content, False, configuration=config)
+    pdf = pdfkit.from_string(
+    html_content,
+    False,
+    configuration=config,
+    options={"enable-local-file-access": ""}
+)
+
 
     return StreamingResponse(io.BytesIO(pdf), media_type="application/pdf", headers={
         "Content-Disposition": f"attachment; filename={query}_battlecard.pdf"

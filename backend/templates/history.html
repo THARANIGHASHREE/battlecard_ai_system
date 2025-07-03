@@ -1,0 +1,51 @@
+<!-- backend/templates/history.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Battlecard History</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+     <div class="bg-dark text-white p-2 mb-4 text-end">
+    {% if request.cookies.get("username") %}
+      Logged in as <strong>{{ request.cookies.get("username") }}</strong> |
+      <a href="/logout" class="text-white">Logout</a>
+    {% else %}
+      <a href="/login" class="text-white">Login</a> |
+      <a href="/signup" class="text-white">Sign Up</a>
+    {% endif %}
+  </div>
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">🕘 Battlecard History</h2>
+    {% if battlecards %}
+        <table class="table table-striped table-bordered shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Company</th>
+                    <th>Strengths</th>
+                    <th>Weaknesses</th>
+                    <th>Keywords</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for card in battlecards %}
+                <tr>
+                    <td>{{ card.timestamp.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+                    <td>{{ card.company }}</td>
+                    <td>{{ card.strengths }}</td>
+                    <td>{{ card.weaknesses }}</td>
+                    <td>{{ card.keywords }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted text-center">No battlecards found yet.</p>
+    {% endif %}
+    <div class="text-center mt-4">
+        <a href="/" class="btn btn-primary">🔙 Back to Home</a>
+    </div>
+</div>
+</body>
+</html>

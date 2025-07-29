@@ -1,42 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Battlecard Generator</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <title>AI Battlecard Generator</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
-      background: #f8f9fa;
-      padding-top: 100px;
+      background-image: url('/static/bg.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      color: #fff;
+      height: 100vh;
+    }
+    .navbar {
+      background-color: #b8c6dbcc;
     }
     .card {
-      max-width: 500px;
-      margin: auto;
-      padding: 30px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background-color: rgba(255, 255, 255, 0.9);
       border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      margin-top: 100px;
     }
   </style>
 </head>
 <body>
-   <div class="bg-dark text-white p-2 mb-4 text-end">
-    {% if request.cookies.get("username") %}
-      Logged in as <strong>{{ request.cookies.get("username") }}</strong> |
-      <a href="/logout" class="text-white">Logout</a>
-    {% else %}
-      <a href="/login" class="text-white">Login</a> |
-      <a href="/signup" class="text-white">Sign Up</a>
-    {% endif %}
-  </div>
-  <div class="card">
-    <h2 class="text-center mb-4">AI Battlecard Generator</h2>
-    <form method="get" action="/search">
-      <div class="mb-3">
-        <label for="query" class="form-label">Competitor Name:</label>
-        <input type="text" class="form-control" id="query" name="query" placeholder="e.g. OpenAI" required>
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">Battlecard</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Services</a></li>
+        </ul>
+        <ul class="navbar-nav">
+          {% if request.cookies.get("username") %}
+            <li class="nav-item">
+              <a class="nav-link" href="#">Hi, {{ request.cookies.get("username") }}</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+          {% else %}
+            <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+            <li class="nav-item"><a class="nav-link" href="/signup">Sign Up</a></li>
+          {% endif %}
+        </ul>
       </div>
-      <button type="submit" class="btn btn-primary w-100">Generate Battlecard</button>
-    </form>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="card text-dark">
+      <h2 class="text-center">AI Battlecard Generator</h2>
+      <form method="get" action="/search">
+        <div class="mb-3">
+          <label for="query" class="form-label">Competitor Name</label>
+          <input type="text" class="form-control" id="query" name="query" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Generate Battlecard</button>
+      </form>
+    </div>
   </div>
 </body>
 </html>

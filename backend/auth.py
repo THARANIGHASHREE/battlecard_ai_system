@@ -4,6 +4,8 @@ from typing import Optional
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from jose import JWTError, jwt
+from fastapi import HTTPException, Request
+from jose import JWTError, jwt
 import os
 
 # Secret key setup
@@ -51,3 +53,36 @@ def add_user(user: User):
         session.commit()
         session.refresh(user)
         return user
+
+
+def create_user(username: str, email: str, password: str):
+    existing = get_user_by_username(username)
+    if existing:
+        raise Exception("Username already exists")
+    
+    hashed = hash_password(password)
+    user = User(username=username, email=email, hashed_password=hashed)
+    return add_user(user)
+
+def authenticate_user(username: str, password: str):
+    user = get_user_by_username(username)
+    if not user or not verify_password(password, user.hashed_password):
+        return None
+    token = create_access_token(data={"sub": user.username})
+    return token
+
+def get_current_user(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        user = get_user_by_username(username)
+        if user is None:
+            raise HTTPException(status_code=401, detail="User not found")
+        return user
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Token is invalid")

@@ -15,7 +15,7 @@ from jinja2 import Environment, FileSystemLoader
 
 app = FastAPI()
 
-# 📁 Paths
+# Paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 static_path = os.path.join(BASE_DIR, "static")
 templates_path = os.path.join(BASE_DIR, "templates")
@@ -23,31 +23,36 @@ templates_path = os.path.join(BASE_DIR, "templates")
 app.mount("/static", StaticFiles(directory=static_path), name="static")
 templates = Jinja2Templates(directory=templates_path)
 
-# 🧾 PDF setup
+# PDF Configuration
 config = pdfkit.configuration(wkhtmltopdf=r"C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
-# 🧱 DB init
+# Database Initialization
 create_db()
 
-# 🏠 Home
+# Home Route
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
 
-# 🔐 Signup
+# Signup Routes
 @app.get("/signup", response_class=HTMLResponse)
 def signup_form(request: Request):
     return templates.TemplateResponse("signup.html", {"request": request})
 
 @app.post("/signup", response_class=HTMLResponse)
-def signup_submit(request: Request, username: str = Form(...), password: str = Form(...)):
+def signup_submit(
+    request: Request,
+    username: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...)
+):
     try:
-        create_user(username, password)
+        create_user(username=username, email=email, password=password)
         return RedirectResponse(url="/login", status_code=303)
     except Exception as e:
         return templates.TemplateResponse("signup.html", {"request": request, "error": str(e)})
 
-# 🔐 Login
+# Login Routes
 @app.get("/login", response_class=HTMLResponse)
 def login_form(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
@@ -64,16 +69,15 @@ def login_submit(request: Request, username: str = Form(...), password: str = Fo
 @app.get("/logout")
 def logout():
     response = RedirectResponse(url="/")
-    response.delete_cookie("token")  # ✅ Fixed!
+    response.delete_cookie("token")
     return response
 
-# 📊 Battlecard Generation
+# Battlecard Generator
 @app.get("/search", response_class=HTMLResponse)
 def search(request: Request, query: str, user: User = Depends(get_current_user)):
     result = search_wikipedia(query)
     keywords = extract_keywords(result.get("Extract", ""))
 
-    # Dummy insights (replace with GPT later)
     strengths = "Strong ecosystem."
     weaknesses = "Legacy systems."
     differentiators = "Cloud + Office combo."
@@ -103,13 +107,12 @@ def search(request: Request, query: str, user: User = Depends(get_current_user))
         "action": action
     })
 
-# 🧾 PDF Download
+# PDF Download
 @app.get("/download", response_class=StreamingResponse)
 def download(query: str, user: User = Depends(get_current_user)):
     result = search_wikipedia(query)
     keywords = extract_keywords(result.get("Extract", ""))
 
-    # Same dummy insights
     strengths = "Strong ecosystem."
     weaknesses = "Legacy systems."
     differentiators = "Cloud + Office combo."
@@ -139,12 +142,11 @@ def download(query: str, user: User = Depends(get_current_user)):
         "Content-Disposition": f"attachment; filename={query}_battlecard.pdf"
     })
 
-# 📜 View History
+# History Page
 @app.get("/history", response_class=HTMLResponse)
 def history(request: Request, user: User = Depends(get_current_user)):
     all_cards = get_all_battlecards()
     user_cards = [c for c in all_cards if c.username == user.username]
-
     return templates.TemplateResponse("history.html", {
         "request": request,
         "battlecards": user_cards

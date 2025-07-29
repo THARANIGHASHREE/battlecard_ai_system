@@ -7,6 +7,7 @@ from sqlmodel import select
 # Data model
 class Battlecard(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    username: str  # 👈 NEW: Who created it
     company: str
     extract: str
     keywords: str
@@ -15,6 +16,7 @@ class Battlecard(SQLModel, table=True):
     differentiators: str
     action: str
     timestamp: datetime = Field(default_factory=datetime.utcnow)
+
 
 # Setup DB engine
 sqlite_file_name = "battlecards.db"

@@ -24,35 +24,30 @@ app.mount("/static", StaticFiles(directory=static_path), name="static")
 templates = Jinja2Templates(directory=templates_path)
 
 # PDF Configuration
-config = pdfkit.configuration(wkhtmltopdf=r"C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
 
-# Database Initialization
+# DB
 create_db()
 
-# Home Route
+# 🏠 Home Page
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
 
-# Signup Routes
+# 🔐 Signup
 @app.get("/signup", response_class=HTMLResponse)
 def signup_form(request: Request):
     return templates.TemplateResponse("signup.html", {"request": request})
 
 @app.post("/signup", response_class=HTMLResponse)
-def signup_submit(
-    request: Request,
-    username: str = Form(...),
-    email: str = Form(...),
-    password: str = Form(...)
-):
+def signup_submit(request: Request, username: str = Form(...), email: str = Form(...), password: str = Form(...)):
     try:
         create_user(username=username, email=email, password=password)
         return RedirectResponse(url="/login", status_code=303)
     except Exception as e:
         return templates.TemplateResponse("signup.html", {"request": request, "error": str(e)})
 
-# Login Routes
+# 🔐 Login
 @app.get("/login", response_class=HTMLResponse)
 def login_form(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
@@ -62,7 +57,7 @@ def login_submit(request: Request, username: str = Form(...), password: str = Fo
     token = authenticate_user(username, password)
     if not token:
         return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
-    response = RedirectResponse(url="/", status_code=303)
+    response = RedirectResponse(url="/input", status_code=303)
     response.set_cookie(key="token", value=token, httponly=True)
     return response
 
@@ -72,7 +67,12 @@ def logout():
     response.delete_cookie("token")
     return response
 
-# Battlecard Generator
+# 📝 Battlecard Input Page
+@app.get("/input", response_class=HTMLResponse)
+def input_page(request: Request, user: User = Depends(get_current_user)):
+    return templates.TemplateResponse("battle_input.html", {"request": request})
+
+# ⚔️ Generate Battlecard
 @app.get("/search", response_class=HTMLResponse)
 def search(request: Request, query: str, user: User = Depends(get_current_user)):
     result = search_wikipedia(query)
@@ -107,7 +107,7 @@ def search(request: Request, query: str, user: User = Depends(get_current_user))
         "action": action
     })
 
-# PDF Download
+# 📄 Download Battlecard as PDF
 @app.get("/download", response_class=StreamingResponse)
 def download(query: str, user: User = Depends(get_current_user)):
     result = search_wikipedia(query)
@@ -142,7 +142,7 @@ def download(query: str, user: User = Depends(get_current_user)):
         "Content-Disposition": f"attachment; filename={query}_battlecard.pdf"
     })
 
-# History Page
+# 📜 History Page
 @app.get("/history", response_class=HTMLResponse)
 def history(request: Request, user: User = Depends(get_current_user)):
     all_cards = get_all_battlecards()
